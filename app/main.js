@@ -5,7 +5,7 @@ const GitClient = require("./git/client");
 const gitClient = new GitClient();
 
 //Commands
-const { CatFileCommand } = require("./git/commands");
+const { CatFileCommand, HashObjectCommand } = require("./git/commands");
 
 // Uncomment this block to pass the first stage
 const command = process.argv[2];
@@ -17,13 +17,18 @@ switch (command) {
 	case "cat-file":
 		handleCatFileCommand();
 		break;
+	case "hash-object":
+		handleHashObjectCommand();
+		break;
 	default:
 		throw new Error(`Unknown command ${command}`);
 }
 
 function createGitDirectory() {
 	fs.mkdirSync(path.join(process.cwd(), ".git"), { recursive: true });
-	fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), { recursive: true });
+	fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), {
+		recursive: true,
+	});
 	fs.mkdirSync(path.join(process.cwd(), ".git", "refs"), { recursive: true });
 
 	fs.writeFileSync(
@@ -39,4 +44,18 @@ function handleCatFileCommand() {
 	const command = new CatFileCommand(flag, commitHash);
 
 	gitClient.run(command);
+}
+
+function handleHashObjectCommand() {
+	let flag = process.argv[3];
+	let filePath = process.argv[4];
+
+	if (!filePath) {
+		filePath = flag;
+		flag = null;
+	}
+
+	const command = new HashObjectCommand(flag, filePath);
+
+	command.execute();
 }
