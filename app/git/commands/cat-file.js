@@ -31,7 +31,7 @@ class CatFileCommand {
 
 					const fileContents = fs.readFileSync(fullPath);
 					const outputBuffer = zlib.inflateSync(fileContents);
-					const output = outputBuffer.toString().trim();
+					const output = outputBuffer.toString().split('\x00')[1];
 
 					process.stdout.write(output);
 				}

@@ -1,11 +1,8 @@
-const fs = require("fs");
-const path = require("path");
 const GitClient = require("./git/client");
-
 const gitClient = new GitClient();
 
 //Commands
-const { CatFileCommand } = require("./git/commands/");
+const { CatFileCommand } = require("./git/commands");
 
 // Uncomment this block to pass the first stage
 const command = process.argv[2];
