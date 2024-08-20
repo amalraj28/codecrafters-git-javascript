@@ -24,11 +24,38 @@ class LsTreeCommand {
 
 		const contents = fs.readFileSync(filePath);
 		const outputBuffer = zlib.inflateSync(contents);
-		const output = outputBuffer.toString().split("\0");
+		const outputString = outputBuffer.toString("binary");
 
-		const treeContent = output.slice(1).filter((e) => e.includes(" "));
-		const names = treeContent.map((e) => e.split(" ")[1]);
-		names.forEach(name => process.stdout.write(`${name}\n`));
+		let currIndex = outputString.indexOf("\0") + 1;
+		const entries = [];
+
+		while (currIndex < outputString.length) {
+			const spaceIndex = outputString.indexOf(" ", currIndex);
+			let mode = outputString.slice(currIndex, spaceIndex);
+			currIndex = spaceIndex + 1;
+
+			const nullCharIndex = outputString.indexOf("\0", currIndex);
+			const fileName = outputString.slice(currIndex, nullCharIndex);
+			currIndex = nullCharIndex + 1;
+
+			const sha = outputString.slice(currIndex, currIndex + 20);
+			currIndex += 20;
+			const shaHex = Buffer.from(sha, "binary").toString("hex");
+			let name = mode === "40000" ? "tree" : "blob";
+			if (mode === "40000") mode = "040000";
+
+			entries.push({ mode, fileName, shaHex, name });
+		}
+
+		entries.forEach((entry) => {
+			if (flag !== "--name-only") {
+				process.stdout.write(
+					`${entry.mode} ${entry.name} ${entry.shaHex}\t${entry.fileName}\n`
+				);
+			} else {
+				process.stdout.write(`${entry.fileName}\n`);
+			}
+		});
 	}
 }
 
