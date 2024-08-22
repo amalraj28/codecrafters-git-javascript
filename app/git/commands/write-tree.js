@@ -17,8 +17,7 @@ class WriteTreeCommand {
 				const stat = fs.statSync(currentPath);
 
 				if (stat.isFile()) {
-					const filePath = path.join(basePath, dirContent);
-					const { sha, blob } = createBlobHash(filePath);
+					const { sha, blob } = createBlobHash(currentPath);
 					writeDataToFile(sha, blob);
 
 					results.push({
