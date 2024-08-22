@@ -27,4 +27,16 @@ function writeDataToFile(sha, data) {
 	fs.writeFileSync(path.join(folderPath, file), compressed);
 }
 
-module.exports = { createBlobHash, writeDataToFile };
+const email = "abcd@gmail.com";
+const name = "abcd";
+const date = Date.now();
+const timeZone = "+0530";
+
+module.exports = {
+	createBlobHash,
+	writeDataToFile,
+	email,
+	name,
+	timeZone,
+	date,
+};

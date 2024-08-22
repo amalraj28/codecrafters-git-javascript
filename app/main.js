@@ -10,6 +10,7 @@ const {
 	HashObjectCommand,
 	LsTreeCommand,
 	WriteTreeCommand,
+	CommitTreeCommand,
 } = require("./git/commands");
 
 // Uncomment this block to pass the first stage
@@ -30,6 +31,9 @@ switch (command) {
 		break;
 	case "write-tree":
 		handleWriteTreeCommand();
+		break;
+	case "commit-tree":
+		handleCommitTreeCommand();
 		break;
 	default:
 		throw new Error(`Unknown command ${command}`);
@@ -86,5 +90,20 @@ function handleLsTreeCommand() {
 
 function handleWriteTreeCommand() {
 	const command = new WriteTreeCommand();
+	gitClient.run(command);
+}
+
+function handleCommitTreeCommand() {
+	const treeSHA = process.argv[3];
+	const commitSHA = process.argv[5];
+	const msg = process.argv[7];
+	if (!commitSHA) {
+		throw new Error(`not a valid object name ${treeSHA}`);
+	}
+	if (!msg) {
+		throw new Error(` switch 'm' requires a value`);
+	}
+
+	const command = new CommitTreeCommand(treeSHA, commitSHA, msg);
 	gitClient.run(command);
 }
