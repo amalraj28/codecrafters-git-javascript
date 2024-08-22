@@ -30,7 +30,7 @@ class WriteTreeCommand {
 					const sha = recursiveCreateTree(currentPath);
 					if (sha) {
 						results.push({
-							mode: "040000",
+							mode: "40000",
 							basename: path.basename(currentPath),
 							sha,
 						});
