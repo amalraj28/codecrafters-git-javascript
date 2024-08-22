@@ -52,8 +52,8 @@ class WriteTreeCommand {
 				Buffer.from(`tree ${treeData.length}\0`),
 				treeData,
 			]);
-			
-      const hash = crypto.hash("sha1").update(tree).digest("hex");
+
+      const hash = crypto.createHash("sha1").update(tree).digest("hex");
 			writeDataToFile(hash, tree);
       return hash;
 		}
