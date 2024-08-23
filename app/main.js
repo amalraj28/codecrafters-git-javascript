@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const GitClient = require("./git/client");
+const { createGitDirectory } = require("./git/utils");
 
 const gitClient = new GitClient();
 
@@ -11,6 +12,7 @@ const {
 	LsTreeCommand,
 	WriteTreeCommand,
 	CommitTreeCommand,
+	CloneCommand,
 } = require("./git/commands");
 
 // Uncomment this block to pass the first stage
@@ -18,7 +20,7 @@ const command = process.argv[2];
 
 switch (command) {
 	case "init":
-		createGitDirectory();
+		handleInitCommand();
 		break;
 	case "cat-file":
 		handleCatFileCommand();
@@ -35,21 +37,15 @@ switch (command) {
 	case "commit-tree":
 		handleCommitTreeCommand();
 		break;
+	case "clone":
+		handleCloneCommand();
+		break;
 	default:
 		throw new Error(`Unknown command ${command}`);
 }
 
-function createGitDirectory() {
-	fs.mkdirSync(path.join(process.cwd(), ".git"), { recursive: true });
-	fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), {
-		recursive: true,
-	});
-	fs.mkdirSync(path.join(process.cwd(), ".git", "refs"), { recursive: true });
-
-	fs.writeFileSync(
-		path.join(process.cwd(), ".git", "HEAD"),
-		"ref: refs/heads/main\n"
-	);
+function handleInitCommand() {
+	createGitDirectory(process.cwd());
 	console.log("Initialized git directory");
 }
 
@@ -105,5 +101,24 @@ function handleCommitTreeCommand() {
 	}
 
 	const command = new CommitTreeCommand(treeSHA, commitSHA, msg);
+	gitClient.run(command);
+}
+
+function handleCloneCommand() {
+	const url = process.argv[3];
+	const dir = process.argv[4];
+
+	const folderPath = path.join(process.cwd(), dir);
+
+	if (fs.existsSync(folderPath)) {
+		if (fs.readdirSync(folderPath).length !== 0)
+			throw new Error(
+				`destination path '${dir}' already exists and is not an empty directory.`
+			);
+	} else {
+		fs.mkdirSync(folderPath);
+	}
+
+	const command = new CloneCommand(url, dir);
 	gitClient.run(command);
 }

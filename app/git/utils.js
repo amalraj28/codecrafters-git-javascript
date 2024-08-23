@@ -27,6 +27,19 @@ function writeDataToFile(sha, data) {
 	fs.writeFileSync(path.join(folderPath, file), compressed);
 }
 
+function createGitDirectory(folderPath, branch = "main") {
+	fs.mkdirSync(path.join(folderPath, ".git"), { recursive: true });
+	fs.mkdirSync(path.join(folderPath, ".git", "objects"), {
+		recursive: true,
+	});
+	fs.mkdirSync(path.join(folderPath, ".git", "refs"), { recursive: true });
+
+	fs.writeFileSync(
+		path.join(folderPath, ".git", "HEAD"),
+		`ref: refs/heads/${branch}\n`
+	);
+}
+
 const email = "abcd@gmail.com";
 const name = "abcd";
 const date = Date.now();
@@ -35,6 +48,7 @@ const timeZone = "+0530";
 module.exports = {
 	createBlobHash,
 	writeDataToFile,
+	createGitDirectory,
 	email,
 	name,
 	timeZone,
